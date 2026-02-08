@@ -1,6 +1,8 @@
 package cpu.spec.scraper.parser;
 
+import cpu.spec.scraper.factory.ChromeDriverFactory;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.WebDriver;
 
 import java.util.List;
 
@@ -10,7 +12,12 @@ class CpuSeriesParserTest {
 
     @Test
     void testExtractSpecificationLinks() throws Exception {
-        List<String> actual = CpuSeriesParser.extractNavigationLinks("https://www.cpu-world.com/CPUs/Xeon/TYPE-Xeon Platinum.html");
-        assertFalse(actual.isEmpty(), "actual is empty");
+        WebDriver driver = ChromeDriverFactory.getDriver();
+        try {
+            List<String> actual = CpuSeriesParser.extractNavigationLinks(driver, "https://www.cpu-world.com/CPUs/Xeon/TYPE-Xeon Platinum.html");
+            assertFalse(actual.isEmpty(), "actual is empty");
+        } finally {
+            driver.quit();
+        }
     }
 }
