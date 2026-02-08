@@ -1,8 +1,10 @@
 package cpu.spec.scraper.file;
 
 import cpu.spec.scraper.CpuSpecificationModel;
+import cpu.spec.scraper.factory.ChromeDriverFactory;
 import cpu.spec.scraper.parser.CpuSpecificationParser;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.WebDriver;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,8 +23,13 @@ class CpuSpecificationWriterTest {
         File targetDir = new File(Paths.get(System.getProperty("user.dir")).getParent().toString() + "/dataset/");
         assertTrue(targetDir.exists(), "directory exists '" + targetDir.getAbsolutePath() + "' exists");
 
-        CpuSpecificationModel spec = CpuSpecificationParser.extractSpecification("https://www.cpu-world.com/CPUs/Xeon/Intel-Xeon 8272CL.html");
-        CpuSpecificationWriter.writeCsvFile(List.of(spec), "../dataset/test.csv");
+        WebDriver driver = ChromeDriverFactory.getDriver();
+        try {
+            CpuSpecificationModel spec = CpuSpecificationParser.extractSpecification(driver, "https://www.cpu-world.com/CPUs/Xeon/Intel-Xeon 8272CL.html");
+            CpuSpecificationWriter.writeCsvFile(List.of(spec), "../dataset/test.csv");
+        } finally {
+            driver.quit();
+        }
 
         File outputFile = new File(Paths.get(System.getProperty("user.dir")).getParent().toString() + "/dataset/test.csv");
         assertTrue(outputFile.exists(), "file exists '" + outputFile.getAbsolutePath() + "' exists");
