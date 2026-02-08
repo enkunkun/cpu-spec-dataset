@@ -3,6 +3,8 @@ package cpu.spec.scraper.factory;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -18,6 +20,29 @@ public abstract class ChromeDriverFactory {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new", "--disable-gpu", "--no-sandbox", "--ignore-certificate-errors");
         options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+
+        String proxyServer = System.getProperty("proxy.server");
+        if (proxyServer != null && !proxyServer.isBlank()) {
+            options.addArguments("--proxy-server=" + proxyServer);
+            LOGGER.info("Using proxy: " + proxyServer);
+        }
+
+        return new ChromeDriver(options);
+    }
+
+    /**
+     * @param downloadDir directory path for file downloads
+     * @return chrome driver with custom configuration and download directory
+     */
+    public static ChromeDriver getDriver(String downloadDir) {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless=new", "--disable-gpu", "--no-sandbox", "--ignore-certificate-errors");
+        options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+
+        Map<String, Object> prefs = new HashMap<>();
+        prefs.put("download.default_directory", downloadDir);
+        prefs.put("download.prompt_for_download", false);
+        options.setExperimentalOption("prefs", prefs);
 
         String proxyServer = System.getProperty("proxy.server");
         if (proxyServer != null && !proxyServer.isBlank()) {
