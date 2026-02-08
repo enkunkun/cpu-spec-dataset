@@ -32,6 +32,8 @@ public class StartupService {
             LOGGER.info("Starting dataset import.");
             List<Dataset> datasets = List.of(
                     new AmdDataset(),
+                    new AmdServerDataset(),
+                    new AmdEmbeddedDataset(),
                     new BenchmarkDataset(),
                     new CpuworldDataset(),
                     new IntelDataset(),

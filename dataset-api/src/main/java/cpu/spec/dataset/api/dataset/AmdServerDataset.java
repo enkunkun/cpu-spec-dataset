@@ -7,32 +7,26 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AmdDataset extends Dataset {
-    public AmdDataset() {
-        super("dataset/amd-cpus.csv");
+public class AmdServerDataset extends Dataset {
+    public AmdServerDataset() {
+        super("dataset/amd-server-cpus.csv");
     }
 
-    /**
-     * @return column mapping with fallbacks for cpu data (readonly)
-     */
     @Override
     public CsvColumnIndexMapping getColumnMapping() {
         CsvColumnIndexMapping mapping = new CsvColumnIndexMapping();
         mapping.name = new int[]{0};
         mapping.productCollection = new int[]{1};
-        mapping.cores = new int[]{4};
-        mapping.threads = new int[]{5};
-        mapping.baseFrequency = new int[]{7};
-        mapping.maxFrequency = new int[]{6};
-        mapping.tdp = new int[]{10};
-        mapping.launchDate = new int[]{20};
+        mapping.cores = new int[]{2};
+        mapping.threads = new int[]{3};
+        mapping.baseFrequency = new int[]{6};
+        mapping.maxFrequency = new int[]{4};
+        mapping.tdp = new int[]{9};
+        mapping.launchDate = new int[]{13};
         mapping.sourceUrl = new int[]{};
         return mapping;
     }
 
-    /**
-     * @return modifications for cpu data (readonly)
-     */
     @Override
     public CsvColumnModification getColumnModifications() {
         CsvColumnModification modification = new CsvColumnModification();
@@ -55,7 +49,6 @@ public class AmdDataset extends Dataset {
                 } else {
                     return null;
                 }
-
             } else if (s.contains("MHz")) {
                 return s.replaceAll("MHz", "");
             } else {
@@ -84,7 +77,7 @@ public class AmdDataset extends Dataset {
                 return null;
             }
         });
-        modification.sourceUrl = (s -> "https://www.amd.com/en/products/specifications/processors");
+        modification.sourceUrl = (s -> "https://www.amd.com/en/products/specifications/server-processor");
         return modification;
     }
 }
