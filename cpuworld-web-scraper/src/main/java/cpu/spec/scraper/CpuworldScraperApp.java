@@ -3,6 +3,7 @@ package cpu.spec.scraper;
 import cpu.spec.scraper.exception.DirectoryNotFoundException;
 import cpu.spec.scraper.factory.ChromeDriverFactory;
 import cpu.spec.scraper.factory.LoggerFactory;
+import cpu.spec.scraper.file.CpuSpecificationReader;
 import cpu.spec.scraper.file.CpuSpecificationWriter;
 import cpu.spec.scraper.parser.CpuSeriesParser;
 import cpu.spec.scraper.parser.CpuSpecificationParser;
@@ -81,6 +82,16 @@ public class CpuworldScraperApp {
     private static List<CpuSpecificationModel> extractSpecifications(WebDriver driver, List<String> specificationLinks, String outputPath, String progressFile) {
         List<CpuSpecificationModel> specifications = new ArrayList<>();
         Set<String> completedUrls = loadCompletedUrls(progressFile);
+
+        if (!completedUrls.isEmpty()) {
+            try {
+                List<CpuSpecificationModel> existing = CpuSpecificationReader.readCsvFile(outputPath);
+                specifications.addAll(existing);
+                LOGGER.info("Loaded " + existing.size() + " existing specs from CSV.");
+            } catch (IOException e) {
+                LOGGER.warning("Failed to load existing CSV: " + e.getMessage());
+            }
+        }
 
         int skipped = 0;
         for (String link : specificationLinks) {
