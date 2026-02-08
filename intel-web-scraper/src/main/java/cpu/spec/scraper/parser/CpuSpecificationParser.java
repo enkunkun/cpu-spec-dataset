@@ -1,39 +1,39 @@
 package cpu.spec.scraper.parser;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.WebDriver;
 
 import cpu.spec.scraper.CpuSpecificationModel;
-import cpu.spec.scraper.exception.ElementNotFoundException;
-import cpu.spec.scraper.factory.JsoupFactory;
 
 public abstract class CpuSpecificationParser {
     /**
+     * @param driver WebDriver instance to use for fetching the page
      * @param url <a href="https://ark.intel.com/content/www/us/en/ark/products/226449/intel-pentium-gold-processor-8500-8m-cache-up-to-4-40-ghz.html">Intel Processor Specification Page</a>
      * @return cpu specification model
-     * @throws IOException              if page cannot be retrieved
-     * @throws ElementNotFoundException if element cannot be retrieved
+     * @throws Exception if page cannot be retrieved or elements cannot be found
      */
-    public static CpuSpecificationModel extractSpecification(String url) throws IOException, ElementNotFoundException {
-        Document page = JsoupFactory.getConnection(url).get();
+    public static CpuSpecificationModel extractSpecification(WebDriver driver, String url) throws Exception {
+        driver.get(url);
+        Thread.sleep(500);
+        Document page = Jsoup.parse(driver.getPageSource());
         CpuSpecificationModel specification = new CpuSpecificationModel();
-        
+
         // Select title element
         // xPath: divs with class='product-details' -> flexible element with itemprop=name
-        String xPathQuery = ".//div[@class='product-details']//*[@itemprop='name']"; 
+        String xPathQuery = ".//div[@class='product-details']//*[@itemprop='name']";
         Element titleElement = page.selectXpath(xPathQuery).first();
 
         specification.id = selectId(url);
-        specification.cpuName = titleElement.text();
+        specification.cpuName = titleElement != null ? titleElement.text() : "";
         specification.sourceUrl = url;
-        
+
         // Extract specifications
-        // xPath: divs with class "products processors" -> "a" elements with hrefs containing "processor" -> hrefs
         xPathQuery = ".//div[contains(@id, 'spec')]//div[contains(@class, 'tech-section')]";
         Elements specElements = page.selectXpath(xPathQuery);
         for (Element specElement : specElements) {
