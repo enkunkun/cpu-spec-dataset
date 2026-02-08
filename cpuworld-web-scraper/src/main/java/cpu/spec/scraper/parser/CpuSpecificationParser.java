@@ -4,6 +4,7 @@ import cpu.spec.scraper.CpuSpecificationModel;
 import cpu.spec.scraper.factory.ChromeDriverFactory;
 import cpu.spec.scraper.validator.SeleniumValidator;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -27,14 +28,20 @@ public abstract class CpuSpecificationParser {
             specification.sourceUrl = url;
 
             // Wait for the dynamic content to load (adjust the wait time according to your needs)
-            Thread.sleep(250);
+            Thread.sleep(2000);
 
             // Extract the CPU name from the page
-            WebElement mainDiv = driver.findElement(By.cssSelector("div#AB_B"));
-            if (mainDiv != null) {
+            try {
+                WebElement mainDiv = driver.findElement(By.cssSelector("div#AB_B"));
                 WebElement titleElement = mainDiv.findElement(By.tagName("h1"));
-                if (titleElement != null) {
+                specification.cpuName = titleElement.getText();
+            } catch (NoSuchElementException e) {
+                // Fallback: div#AB_B may not exist in headless mode, try finding h1 directly
+                try {
+                    WebElement titleElement = driver.findElement(By.tagName("h1"));
                     specification.cpuName = titleElement.getText();
+                } catch (NoSuchElementException ignored) {
+                    specification.cpuName = "";
                 }
             }
             // Extract the specification table
